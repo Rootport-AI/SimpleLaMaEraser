@@ -1,5 +1,5 @@
 # SimpleLaMaEraser 非エンジニア向けスピードガイド
-SimpleLaMaEraser は、画像修正AIである「LaMa (Large Mask Inpainting) モデル」を搭載した、ごくシンプルな画像編集ツールです。ブラウザをインターフェースとして、画像から不要なオブジェクトを簡単に削除できます。修正したい画像と、そのマスク画像を用意して、ドラッグ＆ドロップするだけ！同梱の「TestImages」で試してみてくださいね！
+SimpleLaMaEraser は画像から不要なオブジェクトを簡単に削除できるAIツールです。修正したい画像と、そのマスク画像を用意して、ドラッグ＆ドロップするだけ！同梱の「TestImages」で試してみてくださいね！
 
 # 動作検証環境
 - **OS**: Windows 10/11 (64-bit)
@@ -8,29 +8,29 @@ SimpleLaMaEraser は、画像修正AIである「LaMa (Large Mask Inpainting) �
   - NVIDIA GeForce RTX 3080 Laptop GPU (Driver: 572.16, CUDA: 12.8)
 
 1. Visual Studio 2022をインストールする。<br>
-「C++によるデスクトップ開発」を選択すること！
-https://visualstudio.microsoft.com/ja/downloads/
-2GBほどのサイズがあります。コミュニティ版なら無料で利用できます。
+「C++によるデスクトップ開発」を選択すること！<br>
+https://visualstudio.microsoft.com/ja/downloads/ <br>
+2GBほどのサイズがあります。コミュニティ版なら無料で利用できます。<br>
 
 2. Python 3.10 をインストールする。<br>
-https://www.python.org/downloads/
-3.10は最新版ではないので注意
+https://www.python.org/downloads/ <br>
+3.10は最新版ではないので注意<br>
 
 3. git をインストールする。<br>
-https://git-scm.com/
+https://git-scm.com/ <br>
 
 4. SimpleLaMaEraserのダウンロード方法（zipの場合）<br>
-「SimpleLaMaEraser.zip」をダウンロード。
-https://github.com/Rootport-AI/SimpleLaMaEraser/blob/main/SimpleLaMaEraser.zip
-好きなフォルダで解凍する。
+「SimpleLaMaEraser.zip」をダウンロード。<br>
+https://github.com/Rootport-AI/SimpleLaMaEraser/blob/main/SimpleLaMaEraser.zip <br>
+好きなフォルダで解凍する。<br>
 
 5. SimpleLaMaEraserのインストール方法<br>
-「setup.bat」をダブルクリック。
-コマンドプロンプト（黒い画面）が開き、インストーラーが動き始めます。
-初回インストールには20分程度かかります。
-最終的に7GBほどのファイルがダウンロードされます。
-途中で止まっているように見えても閉じないで！インストールは終わっていません。
-最終的に以下のメッセージが表示されたら、インストール完了です。一旦、コマンドプロンプトを閉じてください。
+「setup.bat」をダブルクリック。<br>
+コマンドプロンプト（黒い画面）が開き、インストーラーが動き始めます。<br>
+初回インストールには20分程度かかります。<br>
+最終的に7GBほどのファイルがダウンロードされます。<br>
+途中で止まっているように見えても閉じないで！インストールは終わっていません。<br>
+最終的に以下のメッセージが表示されたら、インストール完了です。一旦、コマンドプロンプトを閉じてください。<br>
 ```
 Setting PYTHONPATH for saicinpainting...
 Setup completed successfully.
@@ -39,11 +39,11 @@ Application installed in: C:\好きなのフォルダ\appfiles
 ```
 
 6. SimpleLaMaEraserの起動方法<br>
-「run.bat」をダブルクリック。
-コマンドプロンプト（黒い画面）が開き、SimpleLaMaEraserが起動します。
-このコマンドプロンプトは閉じないでください！
-起動には数秒～十数秒がかかります。
-最終的に以下のメッセージが表示されたら起動完了です。
+「run.bat」をダブルクリック。<br>
+コマンドプロンプト（黒い画面）が開き、SimpleLaMaEraserが起動します。<br>
+このコマンドプロンプトは閉じないでください！<br>
+起動には数秒～十数秒がかかります。<br>
+最終的に以下のメッセージが表示されたら起動完了です。<br>
 ```
 INFO:__main__:Model loaded and resident in VRAM (predict-only mode)
 INFO:__main__:ResNetPL in model: False
@@ -52,16 +52,16 @@ INFO:werkzeug: * Debugger PIN: 299-622-548
 ```
 
 7. SimpleLaMaEraserの使い方<br>
-ブラウザで http://localhost:7859 にアクセスしてください。
-SimpleLaMaEraserの操作画面が開きます。
+ブラウザで http://localhost:7859 にアクセスしてください。<br>
+SimpleLaMaEraserの操作画面が開きます。<br>
 
 8. SimpleLaMaEraserの終了方法<br>
-コマンドプロンプトを閉じれば、そのまま終了します。
+コマンドプロンプトを閉じれば、そのまま終了します。<br>
 
 9. その他・ヒント<br>
-setup.batを起動すると、\appfiles というフォルダが生成されます。
-このフォルダよりも上の階層にあるものは削除しても問題ありません。
-必要なファイルはすべて\appfiles 以下にコピーされているためです。
+setup.batを起動すると、\appfiles というフォルダが生成されます。<br>
+このフォルダよりも上の階層にあるものは削除しても問題ありません。<br>
+必要なファイルはすべて\appfiles 以下にコピーされているためです。<br>
 
 # SimpleLaMaEraser README
 

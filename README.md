@@ -21,7 +21,7 @@ https://git-scm.com/ <br>
 
 4. SimpleLaMaEraserのダウンロード方法（zipの場合）<br>
 「SimpleLaMaEraser.zip」をダウンロード。<br>
-https://github.com/Rootport-AI/SimpleLaMaEraser/blob/main/SimpleLaMaEraser.zip <br>
+https://github.com/Rootport-AI/SimpleLaMaEraser/releases/download/v1.0.0/SimpleLaMaEraser.zip <br>
 好きなフォルダで解凍する。<br>
 
 5. SimpleLaMaEraserのインストール方法<br>
@@ -62,6 +62,11 @@ SimpleLaMaEraserの操作画面が開きます。<br>
 setup.batを起動すると、\appfiles というフォルダが生成されます。<br>
 このフォルダよりも上の階層にあるものは削除しても問題ありません。<br>
 必要なファイルはすべて\appfiles 以下にコピーされているためです。<br>
+
+（分かる人向け）
+Visual Studio 2022を丸ごとインストールしなくても、Visual C++をインストールするだけで本来なら動くはずです。
+https://learn.microsoft.com/ja-jp/cpp/windows/latest-supported-vc-redist?view=msvc-170
+ところが現在のVC++には、SimpleLaMaEraserを動かすために必要な「libomp140.x86_64.dll」というコンポーネントが含まれていないようです。このコンポーネントを一番安全にインストールする方法として、ここではVisual Studioを丸ごとインストールする方法を紹介しました。
 
 # SimpleLaMaEraser README
 

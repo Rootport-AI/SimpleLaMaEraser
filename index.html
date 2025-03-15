@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaMa AI消しツール</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>LaMa AI消しツール</h1>
+        <p>画像とマスクをアップロードして消去したい部分を指定してください。</p>
+        
+        <div class="upload-area">
+            <div class="upload-section">
+                <h2>元画像</h2>
+                <div class="drop-area" id="image-drop-area">
+                    <span class="drop-message">ここに画像をドラッグ＆ドロップ</span>
+                    <div class="preview-container">
+                        <img id="image-preview" style="display: none;" alt="画像プレビュー">
+                    </div>
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                </div>
+                <button class="browse-btn" id="image-browse-btn">ファイルを選択</button>
+            </div>
+            
+            <div class="upload-section">
+                <h2>マスク画像 (PNG)</h2>
+                <div class="drop-area" id="mask-drop-area">
+                    <span class="drop-message">ここにマスク画像をドラッグ＆ドロップ</span>
+                    <div class="preview-container">
+                        <img id="mask-preview" style="display: none;" alt="マスクプレビュー">
+                    </div>
+                    <input type="file" id="mask-upload" accept="image/*" style="display: none;">
+                </div>
+                <button class="browse-btn" id="mask-browse-btn">ファイルを選択</button>
+                <p class="help-text">※マスクは白黒の画像で、消したい部分が白、残したい部分が黒である必要があります。</p>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="run-btn" class="run-btn" disabled>Run</button>
+        </div>
+        
+        <div class="result-section">
+            <h2>処理結果</h2>
+            <div class="result-container">
+                <div class="loading" id="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>処理中...</p>
+                </div>
+                <img id="result-image" style="display: none;" alt="処理結果">
+            </div>
+            <div class="download-container" style="display: none;" id="download-container">
+                <a id="download-link" class="download-btn" download>画像をダウンロード</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

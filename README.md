@@ -7,38 +7,38 @@ SimpleLaMaEraser は、画像修正AIである「LaMa (Large Mask Inpainting) �
   - NVIDIA GeForce RTX 4070 Ti SUPER (Driver: 572.60, CUDA: 12.8)
   - NVIDIA GeForce RTX 3080 Laptop GPU (Driver: 572.16, CUDA: 12.8)
 
-1. Visual Studio 2022をインストールする。
+1. Visual Studio 2022をインストールする。<br>
 「C++によるデスクトップ開発」を選択すること！
 https://visualstudio.microsoft.com/ja/downloads/
 2GBほどのサイズがあります。コミュニティ版なら無料で利用できます。
 
-2. Python 3.10 をインストールする。
+2. Python 3.10 をインストールする。<br>
 https://www.python.org/downloads/
 3.10は最新版ではないので注意
 
-3. git をインストールする。
+3. git をインストールする。<br>
 https://git-scm.com/
 
-4. SimpleLaMaEraserのダウンロード方法（zipの場合）
-いずれかのURLから「SimpleLaMaEraser.zip」をダウンロード。
+4. SimpleLaMaEraserのダウンロード方法（zipの場合）<br>
+「SimpleLaMaEraser.zip」をダウンロード。
+https://github.com/Rootport-AI/SimpleLaMaEraser/blob/main/SimpleLaMaEraser.zip
 好きなフォルダで解凍する。
 
-5. SimpleLaMaEraserのインストール方法
+5. SimpleLaMaEraserのインストール方法<br>
 「setup.bat」をダブルクリック。
 コマンドプロンプト（黒い画面）が開き、インストーラーが動き始めます。
 初回インストールには20分程度かかります。
 最終的に7GBほどのファイルがダウンロードされます。
 途中で止まっているように見えても閉じないで！インストールは終わっていません。
-最終的に以下のメッセージが表示されたら、インストール完了です。
+最終的に以下のメッセージが表示されたら、インストール完了です。一旦、コマンドプロンプトを閉じてください。
 ```
 Setting PYTHONPATH for saicinpainting...
 Setup completed successfully.
 Application installed in: C:\好きなのフォルダ\appfiles
 続行するには何かキーを押してください . . .
 ```
-一旦、コマンドプロンプトを閉じてください。
 
-6. SimpleLaMaEraserの起動方法
+6. SimpleLaMaEraserの起動方法<br>
 「run.bat」をダブルクリック。
 コマンドプロンプト（黒い画面）が開き、SimpleLaMaEraserが起動します。
 このコマンドプロンプトは閉じないでください！
@@ -51,14 +51,14 @@ WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 299-622-548
 ```
 
-7. SimpleLaMaEraserの使い方
+7. SimpleLaMaEraserの使い方<br>
 ブラウザで http://localhost:7859 にアクセスしてください。
 SimpleLaMaEraserの操作画面が開きます。
 
-8. SimpleLaMaEraserの終了方法
+8. SimpleLaMaEraserの終了方法<br>
 コマンドプロンプトを閉じれば、そのまま終了します。
 
-9. その他・ヒント
+9. その他・ヒント<br>
 setup.batを起動すると、\appfiles というフォルダが生成されます。
 このフォルダよりも上の階層にあるものは削除しても問題ありません。
 必要なファイルはすべて\appfiles 以下にコピーされているためです。

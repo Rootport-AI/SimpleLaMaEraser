@@ -1,7 +1,11 @@
 # Updated requirements for LaMa (Python 3.10 compatible)
 --extra-index-url https://download.pytorch.org/whl/cu121
-torch==2.4.0+cu121
-torchvision==0.19.0+cu121  # 2.4.0対応の最新版
+# torch 2.3.1 + torchvision 0.18.1: pinned for Windows stability.
+# torch 2.4.x requires fbgemm.dll -> libomp140.x86_64.dll which may be missing
+# on Windows without a full Visual Studio installation.
+# 2.3.1 avoids that DLL dependency while still supporting CUDA 12.1.
+torch==2.3.1+cu121
+torchvision==0.18.1+cu121
 torchmetrics>=0.8.0,<0.9.0
 
 # Python 3.10 対応版に更新（バージョンレンジ指定）

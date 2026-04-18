@@ -27,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const modeCpu = document.getElementById('mode-cpu');
     const modeStatus = document.getElementById('mode-status');
 
+    // LAN access elements
+    const lanEnabled = document.getElementById('lan-enabled');
+    const lanStatus  = document.getElementById('lan-status');
+
     // Crop selector elements
     const cropEnabled     = document.getElementById('crop-enabled');
     const cropMargin      = document.getElementById('crop-margin');
@@ -90,6 +94,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 setModeStatus('');
+
+                // Initialize LAN access checkbox from server state
+                lanEnabled.checked = !!data.lan_access;
 
                 // Initialize crop controls from server state
                 cropEnabled.checked = !!data.crop_mode;
@@ -155,6 +162,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize UI from server state.
     fetchStatus();
+
+    // ============================================================
+    // LAN access toggle
+    // ============================================================
+
+    function setLanStatus(text, cls) {
+        lanStatus.textContent = text;
+        lanStatus.className = 'mode-status' + (cls ? ' ' + cls : '');
+    }
+
+    lanEnabled.addEventListener('change', function() {
+        setLanStatus('送信中...', 'switching');
+
+        fetch('/set_lan_access', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: lanEnabled.checked })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                lanEnabled.checked = !lanEnabled.checked;
+                setLanStatus(data.message || data.error, 'error');
+            } else {
+                setLanStatus(lanEnabled.checked ? 'LANアクセス有効' : 'LANアクセス無効', 'ok');
+                setTimeout(function() { setLanStatus(''); }, 3000);
+            }
+        })
+        .catch(function() {
+            lanEnabled.checked = !lanEnabled.checked;
+            setLanStatus('設定の送信に失敗しました', 'error');
+        });
+    });
 
     // ============================================================
     // Crop selector

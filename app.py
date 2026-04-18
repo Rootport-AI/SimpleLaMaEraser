@@ -386,6 +386,7 @@ def get_status():
         'model_loaded':   MODEL is not None,
         'crop_mode':      CROP_MODE,
         'crop_margin':    CROP_MARGIN,
+        'lan_access':     ALLOW_LAN_ACCESS,
     })
 
 
@@ -461,6 +462,29 @@ def set_mode():
         }), 500
     finally:
         _PROCESS_LOCK.release()
+
+
+@app.route('/set_lan_access', methods=['POST'])
+def set_lan_access():
+    """
+    Toggle LAN access. When enabled, requests from any IP are allowed.
+    When disabled, only localhost (127.0.0.1 / ::1) is permitted.
+
+    Body (JSON):
+        enabled (bool) — whether to allow LAN access
+    """
+    global ALLOW_LAN_ACCESS
+
+    data = request.get_json(silent=True) or {}
+    if 'enabled' not in data:
+        return jsonify({
+            'error': 'missing_fields',
+            'message': '"enabled" field required.'
+        }), 400
+
+    ALLOW_LAN_ACCESS = bool(data['enabled'])
+    logger.info(f"LAN access {'enabled' if ALLOW_LAN_ACCESS else 'disabled'}")
+    return jsonify({'lan_access': ALLOW_LAN_ACCESS})
 
 
 @app.route('/set_crop', methods=['POST'])

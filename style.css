@@ -478,6 +478,60 @@ html.dark .theme-toggle-icon {
 }
 
 /* ============================================================
+   LAN access selector
+   ============================================================ */
+
+:root {
+    --bg-panel-warn:     #fdf6ec;
+    --border-panel-warn: #f0d090;
+    --text-warning:      #7a4400;
+}
+
+html.dark {
+    --bg-panel-warn:     #2a2010;
+    --border-panel-warn: #6a5020;
+    --text-warning:      #ffcc66;
+}
+
+.lan-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: var(--bg-panel-warn);
+    border-radius: 8px;
+    border: 1px solid var(--border-panel-warn);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.lan-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text-accent);
+    user-select: none;
+}
+
+.lan-toggle input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--text-accent);
+}
+
+.lan-warning {
+    font-size: 13px;
+    color: var(--text-warning);
+    font-style: italic;
+    margin-bottom: 0;
+    padding-left: 24px;
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 

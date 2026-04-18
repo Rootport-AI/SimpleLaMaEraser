@@ -4,7 +4,10 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebSearch",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(powershell -command 'Add-Type -AssemblyName System.IO; $pdf = '\\\\''S:\\\\MyGitRepository\\\\SimpleLaMaEraser\\\\FilterPlugInDoc.pdf'\\\\''; \\(Get-Item $pdf\\).Length')",
+      "Bash(python3 -c ' *)",
+      "Bash(powershell -Command ' *)"
     ]
   }
 }

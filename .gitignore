@@ -1,6 +1,11 @@
 # Internal documents
 SimpleLaMaEraser_修正指示書.md
 
+# CLIP STUDIO PAINT 拡張機能 SDK（セルシス社配布・再配布禁止）
+FilterPlugIn/
+FilterPlugInDoc.pdf
+FilterPlugInのアクティベーション対応について.pdf
+
 # Python
 __pycache__/
 *.py[cod]

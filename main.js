@@ -14,83 +14,253 @@ document.addEventListener('DOMContentLoaded', function() {
     const downloadContainer = document.getElementById('download-container');
     const downloadLink = document.getElementById('download-link');
 
+    // Mode selector elements
+    const modeGpu = document.getElementById('mode-gpu');
+    const modeCpu = document.getElementById('mode-cpu');
+    const modeStatus = document.getElementById('mode-status');
+
+    // Crop selector elements
+    const cropEnabled = document.getElementById('crop-enabled');
+    const cropMargin  = document.getElementById('crop-margin');
+    const cropMarginValue = document.getElementById('crop-margin-value');
+    const marginControl   = document.getElementById('margin-control');
+    const cropStatus      = document.getElementById('crop-status');
+
     // File storage
     let imageFile = null;
     let maskFile = null;
 
-    // Check if both files are selected to enable run button
+    // Track the current result Blob URL so it can be revoked when a new result arrives.
+    let currentResultUrl = null;
+
+    // Whether the GPU radio was ever enabled (used to restore it after a switch).
+    let cudaAvailable = false;
+
+    // ============================================================
+    // Mode selector
+    // ============================================================
+
+    function setModeStatus(text, cls) {
+        modeStatus.textContent = text;
+        modeStatus.className = 'mode-status' + (cls ? ' ' + cls : '');
+    }
+
+    function setRadiosEnabled(enabled) {
+        modeCpu.disabled = !enabled;
+        // GPU is only re-enabled if CUDA is actually available
+        modeGpu.disabled = !enabled || !cudaAvailable;
+    }
+
+    // Fetch server status on page load to initialize the radio buttons and crop controls.
+    function fetchStatus() {
+        fetch('/status')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                cudaAvailable = data.cuda_available;
+
+                if (data.device === 'cuda') {
+                    modeGpu.checked = true;
+                } else {
+                    modeCpu.checked = true;
+                }
+
+                if (!data.cuda_available) {
+                    modeGpu.disabled = true;
+                    modeGpu.parentElement.title = 'CUDAが利用できない環境です';
+                }
+
+                setModeStatus('');
+
+                // Initialize crop controls from server state
+                cropEnabled.checked = !!data.crop_mode;
+                cropMargin.value    = data.crop_margin != null ? data.crop_margin : 128;
+                cropMarginValue.textContent = cropMargin.value + 'px';
+                updateMarginControlState();
+            })
+            .catch(function() {
+                setModeStatus('サーバーに接続できません', 'error');
+            });
+    }
+
+    // ============================================================
+    // Crop selector
+    // ============================================================
+
+    function setCropStatus(text, cls) {
+        cropStatus.textContent = text;
+        cropStatus.className = 'mode-status' + (cls ? ' ' + cls : '');
+    }
+
+    function updateMarginControlState() {
+        if (cropEnabled.checked) {
+            marginControl.classList.remove('disabled');
+            cropMargin.disabled = false;
+        } else {
+            marginControl.classList.add('disabled');
+            cropMargin.disabled = true;
+        }
+    }
+
+    function postCropSettings(enabled, margin) {
+        var body = { enabled: enabled, margin: margin };
+        return fetch('/set_crop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+        .then(function(r) { return r.json(); });
+    }
+
+    cropEnabled.addEventListener('change', function() {
+        updateMarginControlState();
+        setCropStatus('送信中...', 'switching');
+
+        postCropSettings(cropEnabled.checked, parseInt(cropMargin.value, 10))
+            .then(function(data) {
+                if (data.error) {
+                    // Revert checkbox on failure
+                    cropEnabled.checked = !cropEnabled.checked;
+                    updateMarginControlState();
+                    setCropStatus(data.message || data.error, 'error');
+                } else {
+                    setCropStatus(cropEnabled.checked ? 'Cropモード有効' : 'Cropモード無効', 'ok');
+                    setTimeout(function() { setCropStatus(''); }, 3000);
+                }
+            })
+            .catch(function() {
+                cropEnabled.checked = !cropEnabled.checked;
+                updateMarginControlState();
+                setCropStatus('設定の送信に失敗しました', 'error');
+            });
+    });
+
+    // Update displayed value while dragging (no server call yet)
+    cropMargin.addEventListener('input', function() {
+        cropMarginValue.textContent = cropMargin.value + 'px';
+    });
+
+    // Send to server when the user releases the slider
+    cropMargin.addEventListener('change', function() {
+        setCropStatus('送信中...', 'switching');
+        postCropSettings(cropEnabled.checked, parseInt(cropMargin.value, 10))
+            .then(function(data) {
+                if (data.error) {
+                    setCropStatus(data.message || data.error, 'error');
+                } else {
+                    setCropStatus('マージン更新済み', 'ok');
+                    setTimeout(function() { setCropStatus(''); }, 3000);
+                }
+            })
+            .catch(function() {
+                setCropStatus('設定の送信に失敗しました', 'error');
+            });
+    });
+
+    // Called when a radio button is clicked.
+    function handleModeChange(e) {
+        var newDevice = e.target.value;
+
+        // Disable both radios while the switch is in progress.
+        setRadiosEnabled(false);
+        setModeStatus('切り替え中...', 'switching');
+
+        fetch('/set_mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ device: newDevice })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                // Revert the radio to the opposite selection on failure.
+                if (newDevice === 'cuda') {
+                    modeCpu.checked = true;
+                } else {
+                    modeGpu.checked = true;
+                }
+                setModeStatus(data.message || data.error, 'error');
+            } else {
+                setModeStatus(data.message || '', 'ok');
+                // Clear the status message after 3 seconds.
+                setTimeout(function() { setModeStatus(''); }, 3000);
+            }
+        })
+        .catch(function() {
+            // Network error — revert radio and show error.
+            if (newDevice === 'cuda') {
+                modeCpu.checked = true;
+            } else {
+                modeGpu.checked = true;
+            }
+            setModeStatus('切り替えに失敗しました', 'error');
+        })
+        .finally(function() {
+            setRadiosEnabled(true);
+        });
+    }
+
+    modeGpu.addEventListener('change', handleModeChange);
+    modeCpu.addEventListener('change', handleModeChange);
+
+    // Initialize UI from server state.
+    fetchStatus();
+
+    // ============================================================
+    // File handling
+    // ============================================================
+
     function updateRunButtonState() {
         runBtn.disabled = !(imageFile && maskFile);
     }
 
-    // Handle file upload for images
-    function handleImageUpload(file, previewElement, isImage = true) {
+    function handleImageUpload(file, previewElement, isImage) {
         if (!file) return;
-        
-        // Validate file is an image
+
         if (!file.type.match('image.*')) {
             alert('Please select an image file.');
             return;
         }
-        
-        // Validate mask is PNG if applicable
-        if (!isImage && !file.type.match('image.*')) {
-            alert('Mask must be an image file.');
-            return;
-        }
-        
-        // Create preview
+
         const reader = new FileReader();
         reader.onload = function(e) {
             previewElement.src = e.target.result;
             previewElement.style.display = 'block';
-            
-            // Hide drop message in the drop area
             previewElement.parentElement.parentElement.querySelector('.drop-message').style.display = 'none';
         };
         reader.readAsDataURL(file);
-        
-        // Store file reference
+
         if (isImage) {
             imageFile = file;
         } else {
             maskFile = file;
         }
-        
+
         updateRunButtonState();
     }
 
-    // Setup drag and drop for image
-    function setupDragAndDrop(dropArea, fileInput, previewElement, isImage = true) {
-        // Prevent default drag behaviors
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    function setupDragAndDrop(dropArea, fileInput, previewElement, isImage) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function(eventName) {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
-        
-        // Highlight drop area when dragging over it
-        ['dragenter', 'dragover'].forEach(eventName => {
+
+        ['dragenter', 'dragover'].forEach(function(eventName) {
             dropArea.addEventListener(eventName, highlight, false);
         });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
+
+        ['dragleave', 'drop'].forEach(function(eventName) {
             dropArea.addEventListener(eventName, unhighlight, false);
         });
-        
-        // Handle dropped files
+
         dropArea.addEventListener('drop', function(e) {
-            const file = e.dataTransfer.files[0];
-            handleImageUpload(file, previewElement, isImage);
+            handleImageUpload(e.dataTransfer.files[0], previewElement, isImage);
         }, false);
-        
-        // Open file dialog when clicked
+
         dropArea.addEventListener('click', function() {
             fileInput.click();
         });
-        
-        // Handle file selection via input
+
         fileInput.addEventListener('change', function() {
-            const file = this.files[0];
-            handleImageUpload(file, previewElement, isImage);
+            handleImageUpload(this.files[0], previewElement, isImage);
         });
     }
 
@@ -107,63 +277,76 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.remove('drag-over');
     }
 
-    // Set up browse buttons
-    imageBrowseBtn.addEventListener('click', function() {
-        imageUpload.click();
-    });
+    imageBrowseBtn.addEventListener('click', function() { imageUpload.click(); });
+    maskBrowseBtn.addEventListener('click',  function() { maskUpload.click();  });
 
-    maskBrowseBtn.addEventListener('click', function() {
-        maskUpload.click();
-    });
+    // ============================================================
+    // Run button: send image + mask, receive PNG directly
+    // ============================================================
 
-    // Handle Run button click
     runBtn.addEventListener('click', function() {
         if (!imageFile || !maskFile) {
             alert('Please select both an image and a mask file.');
             return;
         }
-        
-        // Show loading indicator
+
         loadingIndicator.style.display = 'flex';
         resultImage.style.display = 'none';
         downloadContainer.style.display = 'none';
-        
-        // Create form data
+
         const formData = new FormData();
         formData.append('image', imageFile);
         formData.append('mask', maskFile);
-        
-        // Send to server
+
         fetch('/process', {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            // Hide loading indicator
-            loadingIndicator.style.display = 'none';
-            
-            if (data.error) {
-                alert('Error: ' + data.error);
-                return;
+        .then(function(response) {
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.startsWith('image/png')) {
+                // Success: server returned the result PNG directly
+                return response.blob().then(function(blob) {
+                    return { type: 'image', blob: blob };
+                });
             }
-            
-            // Show result
-            resultImage.src = data.result_url + '?t=' + new Date().getTime(); // Add timestamp to prevent caching
-            resultImage.style.display = 'block';
-            
-            // Setup download link
-            downloadLink.href = data.result_url;
-            downloadContainer.style.display = 'block';
+            // Error or unexpected: parse as JSON
+            return response.json().then(function(data) {
+                return { type: 'json', ok: response.ok, data: data };
+            });
         })
-        .catch(error => {
+        .then(function(result) {
+            loadingIndicator.style.display = 'none';
+
+            if (result.type === 'image') {
+                // Revoke the previous Blob URL to avoid memory leaks
+                if (currentResultUrl) {
+                    URL.revokeObjectURL(currentResultUrl);
+                }
+                currentResultUrl = URL.createObjectURL(result.blob);
+
+                resultImage.src = currentResultUrl;
+                resultImage.style.display = 'block';
+
+                downloadLink.href = currentResultUrl;
+                downloadLink.download = 'result.png';
+                downloadContainer.style.display = 'block';
+            } else {
+                const msg = (result.data && (result.data.message || result.data.error)) || 'Unknown error';
+                alert('Error: ' + msg);
+            }
+        })
+        .catch(function(error) {
             loadingIndicator.style.display = 'none';
             alert('Error: ' + error.message);
             console.error('Error:', error);
         });
     });
 
+    // ============================================================
     // Initialize drag and drop
+    // ============================================================
+
     setupDragAndDrop(imageDropArea, imageUpload, imagePreview, true);
-    setupDragAndDrop(maskDropArea, maskUpload, maskPreview, false);
+    setupDragAndDrop(maskDropArea,  maskUpload,  maskPreview,  false);
 });

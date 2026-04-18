@@ -1,0 +1,49 @@
+# Internal documents
+SimpleLaMaEraser_修正指示書.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+
+# ============================================================
+# setup.bat が生成するファイル・フォルダ
+# ============================================================
+
+# appfiles/ 以下にすべての生成物が作成される:
+#   appfiles/lama/           — GitHub clone (LaMa リポジトリ本体)
+#   appfiles/lama/venv/      — Python 3.10 仮想環境
+#   appfiles/lama/big-lama/  — HuggingFace からダウンロードしたモデルデータ
+#   appfiles/lama/templates/ — コピーされた Flask テンプレート
+#   appfiles/lama/static/    — コピーされた静的ファイル
+appfiles/
+
+# setup.bat 失敗時に残留する可能性がある一時ファイル
+big-lama.zip
+temp/
+
+# モデルデータがリポジトリルートに誤配置された場合のセーフティネット
+big-lama/
+
+# PyTorch hub キャッシュ (app.py が TORCH_HOME=BASE_DIR を設定するため、
+# 実行ディレクトリ次第でリポジトリルートに生成されることがある)
+hub/
+
+# ============================================================
+# 実行時に生成されるファイル
+# ============================================================
+
+# /process の成功ごとに latest.png が書き込まれる
+output/
+
+# ============================================================
+# OS / editor
+# ============================================================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

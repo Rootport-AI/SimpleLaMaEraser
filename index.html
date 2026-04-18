@@ -9,6 +9,36 @@
 <body>
     <div class="container">
         <h1>LaMa AI消しツール</h1>
+
+        <div class="mode-selector" id="mode-selector">
+            <span class="mode-label">推論モード：</span>
+            <label class="mode-option">
+                <input type="radio" name="device" value="cuda" id="mode-gpu">
+                <span>GPU（高速）</span>
+            </label>
+            <label class="mode-option">
+                <input type="radio" name="device" value="cpu" id="mode-cpu">
+                <span>CPU（低速）</span>
+            </label>
+            <span class="mode-status" id="mode-status">読み込み中...</span>
+        </div>
+
+        <div class="crop-selector" id="crop-selector">
+            <label class="crop-toggle">
+                <input type="checkbox" id="crop-enabled">
+                <span>Cropモード（マスク周辺のみ処理）</span>
+            </label>
+            <div class="margin-control disabled" id="margin-control">
+                <label for="crop-margin">マージン幅：</label>
+                <span class="margin-slider-wrap">
+                    <input type="range" id="crop-margin" min="0" max="500" value="128" disabled>
+                    <span id="crop-margin-value">128px</span>
+                </span>
+                <p class="help-text">※ マージンは 32px 以上が推奨です</p>
+            </div>
+            <span class="mode-status" id="crop-status"></span>
+        </div>
+
         <p>画像とマスクをアップロードして消去したい部分を指定してください。</p>
         
         <div class="upload-area">

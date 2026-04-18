@@ -28,7 +28,6 @@ ALLOW_LAN_ACCESS = False
 
 _LOCALHOST_ADDRS = {'127.0.0.1', '::1', '::ffff:127.0.0.1'}
 
-CROP_MODE   = False  # True = process only the mask bounding box; False = full canvas
 CROP_MARGIN = 128    # pixels added around the mask bbox on each side
 
 # ============================================================
@@ -57,6 +56,9 @@ if not CUDA_AVAILABLE:
 # Default device: GPU if available, CPU otherwise.
 # Can be changed at runtime via POST /set_mode.
 DEVICE = 'cuda' if CUDA_AVAILABLE else 'cpu'
+
+# Crop mode: default ON when starting in CPU mode to keep inference time manageable.
+CROP_MODE = not CUDA_AVAILABLE
 
 # ============================================================
 # Model management
@@ -194,16 +196,11 @@ def validate_inputs(image_file, mask_file):
             f'Image size {pil_image.size} does not match mask size {pil_mask.size}.'
         )
 
-    # --- Strict binary check: only 0 or 255 are valid mask values ---
-    # The caller (e.g. CLIP STUDIO PAINT) is expected to binarize before sending.
+    # Binarize the mask: >= 128 → 255 (erase), < 128 → 0 (keep).
+    # Clients are expected to send a pre-binarized mask, but this threshold
+    # conversion handles minor compression artifacts gracefully.
     mask_arr = np.array(pil_mask, dtype=np.uint8)
-    unique_vals = np.unique(mask_arr)
-    invalid_vals = [int(v) for v in unique_vals if v not in (0, 255)]
-    if invalid_vals:
-        raise ProcessingError(
-            'invalid_mask_values',
-            f'Mask must contain only 0 or 255. Found unexpected values: {invalid_vals[:5]}'
-        )
+    mask_arr = np.where(mask_arr >= 128, np.uint8(255), np.uint8(0))
 
     return pil_image, mask_arr
 
@@ -401,7 +398,7 @@ def set_mode():
     (using _PROCESS_LOCK with a timeout). Returns 409 if a job does
     not finish within the timeout window.
     """
-    global DEVICE
+    global DEVICE, CROP_MODE
 
     data = request.get_json(silent=True) or {}
     new_device = str(data.get('device', '')).lower()
@@ -438,10 +435,24 @@ def set_mode():
         if MODEL is not None:
             logger.info(f"Moving model to {new_device}...")
             MODEL.to(new_device)
+            if new_device == 'cpu' and CUDA_AVAILABLE:
+                torch.cuda.empty_cache()
+                logger.info("CUDA cache cleared.")
         DEVICE = new_device
+
+        # When switching to CPU, automatically enable crop mode to reduce
+        # inference time. Switching back to GPU leaves crop mode as-is.
+        if new_device == 'cpu':
+            CROP_MODE = True
+            logger.info("Crop mode auto-enabled for CPU inference.")
+
         label = 'GPU' if DEVICE == 'cuda' else 'CPU'
         logger.info(f"Mode switched to {new_device}")
-        return jsonify({'device': DEVICE, 'message': f'Switched to {label} mode.'})
+        return jsonify({
+            'device':    DEVICE,
+            'crop_mode': CROP_MODE,
+            'message':   f'Switched to {label} mode.',
+        })
     except Exception as e:
         logger.exception(f"Failed to switch device to {new_device}: {e}")
         return jsonify({

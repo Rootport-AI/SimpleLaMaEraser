@@ -1,40 +1,179 @@
+/* ============================================================
+   CSS Custom Properties — Light / Dark themes
+   ============================================================ */
+
+:root {
+    --bg-page:        #f9f9f9;
+    --bg-container:   #ffffff;
+    --bg-panel:       #f0f0fa;
+    --bg-panel-green: #f0f7f0;
+    --bg-drop-hover:  #f0f8ff;
+    --bg-loading:     rgba(255, 255, 255, 0.85);
+
+    --border-panel:       #ddddf0;
+    --border-panel-green: #d0e8d0;
+    --border-drop:        #cccccc;
+    --border-result:      #eeeeee;
+
+    --text-primary:   #333333;
+    --text-heading1:  #2a2a72;
+    --text-heading2:  #3a3a3a;
+    --text-muted:     #666666;
+    --text-subtle:    #777777;
+    --text-panel:     #444444;
+    --text-accent:    #2a2a72;
+    --text-disabled:  #bbbbbb;
+
+    --btn-primary:    #2a2a72;
+    --btn-secondary:  #4a4a9e;
+    --btn-hover:      #3a3aa0;
+    --btn-disabled:   #b5b5b5;
+
+    --spinner-track:  #f3f3f3;
+    --spinner-head:   #2a2a72;
+
+    --shadow-container: rgba(0, 0, 0, 0.1);
+    --shadow-btn:       rgba(0, 0, 0, 0.1);
+
+    --status-switching: #b36200;
+    --status-error:     #cc0000;
+    --status-ok:        #007700;
+
+    /* Theme toggle button */
+    --toggle-bg:      #cccccc;
+    --toggle-thumb:   #ffffff;
+    --toggle-icon:    '☀️';
+}
+
+html.dark {
+    --bg-page:        #1a1a2e;
+    --bg-container:   #16213e;
+    --bg-panel:       #1f2a4a;
+    --bg-panel-green: #1f2a4a;
+    --bg-drop-hover:  #1e2d4a;
+    --bg-loading:     rgba(22, 33, 62, 0.9);
+
+    --border-panel:       #3a4a7a;
+    --border-panel-green: #3a4a7a;
+    --border-drop:        #3a4a6a;
+    --border-result:      #2a3a5a;
+
+    --text-primary:   #d0d8f0;
+    --text-heading1:  #7a9fff;
+    --text-heading2:  #a0b0d0;
+    --text-muted:     #8090b0;
+    --text-subtle:    #7080a0;
+    --text-panel:     #b0c0e0;
+    --text-accent:    #7a9fff;
+    --text-disabled:  #4a5a7a;
+
+    --btn-primary:    #3a5aaa;
+    --btn-secondary:  #5a6aaa;
+    --btn-hover:      #4a6acc;
+    --btn-disabled:   #3a4a5a;
+
+    --spinner-track:  #2a3a5a;
+    --spinner-head:   #7a9fff;
+
+    --shadow-container: rgba(0, 0, 0, 0.5);
+    --shadow-btn:       rgba(0, 0, 0, 0.3);
+
+    --status-switching: #ffaa44;
+    --status-error:     #ff6666;
+    --status-ok:        #44cc44;
+
+    --toggle-bg:      #3a5aaa;
+    --toggle-thumb:   #d0d8f0;
+    --toggle-icon:    '🌙';
+}
+
+/* ============================================================
+   Reset
+   ============================================================ */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* ============================================================
+   Base
+   ============================================================ */
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f9f9f9;
+    color: var(--text-primary);
+    background-color: var(--bg-page);
     padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    background: #fff;
+    background: var(--bg-container);
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px var(--shadow-container);
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 20px;
-    color: #2a2a72;
+    color: var(--text-heading1);
 }
 
 h2 {
     margin-bottom: 15px;
-    color: #3a3a3a;
+    color: var(--text-heading2);
 }
 
 p {
     margin-bottom: 15px;
 }
+
+/* ============================================================
+   Theme toggle button (top-right, fixed)
+   ============================================================ */
+
+.theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 100;
+    background: var(--toggle-bg);
+    border: none;
+    border-radius: 20px;
+    width: 52px;
+    height: 28px;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.theme-toggle-icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--toggle-thumb);
+    margin: 0 3px;
+    transition: transform 0.3s, background 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+html.dark .theme-toggle-icon {
+    transform: translateX(24px);
+}
+
+/* ============================================================
+   Upload area
+   ============================================================ */
 
 .upload-area {
     display: flex;
@@ -49,7 +188,7 @@ p {
 }
 
 .drop-area {
-    border: 2px dashed #ccc;
+    border: 2px dashed var(--border-drop);
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -65,12 +204,12 @@ p {
 }
 
 .drop-area:hover, .drop-area.drag-over {
-    background-color: #f0f8ff;
-    border-color: #2a2a72;
+    background-color: var(--bg-drop-hover);
+    border-color: var(--text-accent);
 }
 
 .drop-message {
-    color: #777;
+    color: var(--text-subtle);
     margin-bottom: 10px;
 }
 
@@ -89,6 +228,10 @@ p {
     object-fit: contain;
 }
 
+/* ============================================================
+   Buttons
+   ============================================================ */
+
 .buttons {
     text-align: center;
     margin-bottom: 30px;
@@ -96,8 +239,8 @@ p {
 
 .browse-btn, .run-btn, .download-btn {
     padding: 10px 20px;
-    background-color: #2a2a72;
-    color: white;
+    background-color: var(--btn-primary);
+    color: #ffffff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -106,7 +249,7 @@ p {
 }
 
 .browse-btn {
-    background-color: #4a4a9e;
+    background-color: var(--btn-secondary);
     margin-bottom: 10px;
 }
 
@@ -116,21 +259,25 @@ p {
 }
 
 .run-btn:disabled {
-    background-color: #b5b5b5;
+    background-color: var(--btn-disabled);
     cursor: not-allowed;
 }
 
 .browse-btn:hover, .run-btn:hover:not(:disabled), .download-btn:hover {
-    background-color: #3a3aa0;
+    background-color: var(--btn-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--shadow-btn);
 }
 
 .help-text {
     font-size: 14px;
-    color: #666;
+    color: var(--text-muted);
     font-style: italic;
 }
+
+/* ============================================================
+   Result section
+   ============================================================ */
 
 .result-section {
     margin-top: 40px;
@@ -141,7 +288,7 @@ p {
     justify-content: center;
     align-items: center;
     min-height: 300px;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-result);
     border-radius: 8px;
     overflow: hidden;
     position: relative;
@@ -160,12 +307,12 @@ p {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: var(--bg-loading);
 }
 
 .spinner {
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #2a2a72;
+    border: 5px solid var(--spinner-track);
+    border-top: 5px solid var(--spinner-head);
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -174,7 +321,7 @@ p {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
+    0%   { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
@@ -189,7 +336,10 @@ p {
     padding: 10px 25px;
 }
 
-/* ---- Inference mode selector ---- */
+/* ============================================================
+   Inference mode selector
+   ============================================================ */
+
 .mode-selector {
     display: flex;
     align-items: center;
@@ -198,14 +348,15 @@ p {
     flex-wrap: wrap;
     margin-bottom: 20px;
     padding: 10px 20px;
-    background: #f0f0fa;
+    background: var(--bg-panel);
     border-radius: 8px;
-    border: 1px solid #ddddf0;
+    border: 1px solid var(--border-panel);
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .mode-label {
     font-weight: bold;
-    color: #2a2a72;
+    color: var(--text-accent);
     font-size: 15px;
 }
 
@@ -216,13 +367,14 @@ p {
     cursor: pointer;
     font-size: 15px;
     user-select: none;
+    color: var(--text-primary);
 }
 
 .mode-option input[type="radio"] {
     cursor: pointer;
     width: 16px;
     height: 16px;
-    accent-color: #2a2a72;
+    accent-color: var(--text-accent);
 }
 
 .mode-option input[type="radio"]:disabled {
@@ -230,39 +382,35 @@ p {
 }
 
 .mode-option input[type="radio"]:disabled + span {
-    color: #bbb;
+    color: var(--text-disabled);
     cursor: not-allowed;
 }
 
 .mode-status {
     font-size: 13px;
-    color: #666;
+    color: var(--text-muted);
     font-style: italic;
     min-width: 180px;
 }
 
-.mode-status.switching {
-    color: #b36200;
-}
+.mode-status.switching { color: var(--status-switching); }
+.mode-status.error     { color: var(--status-error); }
+.mode-status.ok        { color: var(--status-ok); }
 
-.mode-status.error {
-    color: #cc0000;
-}
+/* ============================================================
+   Crop mode selector
+   ============================================================ */
 
-.mode-status.ok {
-    color: #007700;
-}
-
-/* ---- Crop mode selector ---- */
 .crop-selector {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
     padding: 12px 20px;
-    background: #f0f7f0;
+    background: var(--bg-panel-green);
     border-radius: 8px;
-    border: 1px solid #d0e8d0;
+    border: 1px solid var(--border-panel-green);
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .crop-toggle {
@@ -272,7 +420,7 @@ p {
     cursor: pointer;
     font-size: 15px;
     font-weight: bold;
-    color: #2a2a72;
+    color: var(--text-accent);
     user-select: none;
 }
 
@@ -280,7 +428,7 @@ p {
     cursor: pointer;
     width: 16px;
     height: 16px;
-    accent-color: #2a2a72;
+    accent-color: var(--text-accent);
 }
 
 .margin-control {
@@ -289,7 +437,7 @@ p {
     flex-wrap: wrap;
     gap: 10px;
     font-size: 14px;
-    color: #444;
+    color: var(--text-panel);
     padding-left: 24px;
 }
 
@@ -305,7 +453,7 @@ p {
 
 .margin-slider-wrap input[type="range"] {
     width: 200px;
-    accent-color: #2a2a72;
+    accent-color: var(--text-accent);
     cursor: pointer;
 }
 
@@ -317,27 +465,31 @@ p {
 #crop-margin-value {
     min-width: 48px;
     font-weight: bold;
-    color: #2a2a72;
+    color: var(--text-accent);
 }
 
 .margin-control.disabled label,
 .margin-control.disabled #crop-margin-value {
-    color: #bbb;
+    color: var(--text-disabled);
 }
 
 .margin-control.disabled .help-text {
-    color: #ccc;
+    color: var(--text-disabled);
 }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
 
 @media (max-width: 768px) {
     .upload-area {
         flex-direction: column;
     }
-    
+
     .upload-section {
         width: 100%;
     }
-    
+
     .container {
         padding: 15px;
     }

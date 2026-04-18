@@ -1,3 +1,11 @@
+// Apply dark mode class immediately (before DOMContentLoaded) to prevent FOUC.
+// This is the runtime counterpart of the inline script in <head>.
+(function() {
+    if (localStorage.getItem('theme') !== 'light') {
+        document.documentElement.classList.add('dark');
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
     // DOM elements
     const imageDropArea = document.getElementById('image-drop-area');
@@ -20,11 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const modeStatus = document.getElementById('mode-status');
 
     // Crop selector elements
-    const cropEnabled = document.getElementById('crop-enabled');
-    const cropMargin  = document.getElementById('crop-margin');
+    const cropEnabled     = document.getElementById('crop-enabled');
+    const cropMargin      = document.getElementById('crop-margin');
     const cropMarginValue = document.getElementById('crop-margin-value');
     const marginControl   = document.getElementById('margin-control');
     const cropStatus      = document.getElementById('crop-status');
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
 
     // File storage
     let imageFile = null;
@@ -35,6 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Whether the GPU radio was ever enabled (used to restore it after a switch).
     let cudaAvailable = false;
+
+    // ============================================================
+    // Dark mode toggle
+    // ============================================================
+
+    themeToggle.addEventListener('click', function() {
+        var isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
 
     // ============================================================
     // Mode selector
@@ -73,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Initialize crop controls from server state
                 cropEnabled.checked = !!data.crop_mode;
-                cropMargin.value    = data.crop_margin != null ? data.crop_margin : 128;
+                cropMargin.value = data.crop_margin != null ? data.crop_margin : 128;
                 cropMarginValue.textContent = cropMargin.value + 'px';
                 updateMarginControlState();
             })
@@ -81,6 +101,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 setModeStatus('サーバーに接続できません', 'error');
             });
     }
+
+    // Called when a radio button is clicked.
+    function handleModeChange(e) {
+        var newDevice = e.target.value;
+
+        // Disable both radios while the switch is in progress.
+        setRadiosEnabled(false);
+        setModeStatus('切り替え中...', 'switching');
+
+        fetch('/set_mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ device: newDevice })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                // Revert the radio to the opposite selection on failure.
+                if (newDevice === 'cuda') {
+                    modeCpu.checked = true;
+                } else {
+                    modeGpu.checked = true;
+                }
+                setModeStatus(data.message || data.error, 'error');
+            } else {
+                setModeStatus(data.message || '', 'ok');
+                setTimeout(function() { setModeStatus(''); }, 3000);
+
+                // If the server auto-enabled crop mode (CPU switch), sync the checkbox.
+                if (data.crop_mode != null) {
+                    cropEnabled.checked = !!data.crop_mode;
+                    updateMarginControlState();
+                }
+            }
+        })
+        .catch(function() {
+            // Network error — revert radio and show error.
+            if (newDevice === 'cuda') {
+                modeCpu.checked = true;
+            } else {
+                modeGpu.checked = true;
+            }
+            setModeStatus('切り替えに失敗しました', 'error');
+        })
+        .finally(function() {
+            setRadiosEnabled(true);
+        });
+    }
+
+    modeGpu.addEventListener('change', handleModeChange);
+    modeCpu.addEventListener('change', handleModeChange);
+
+    // Initialize UI from server state.
+    fetchStatus();
 
     // ============================================================
     // Crop selector
@@ -102,11 +176,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function postCropSettings(enabled, margin) {
-        var body = { enabled: enabled, margin: margin };
         return fetch('/set_crop', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
+            body: JSON.stringify({ enabled: enabled, margin: margin })
         })
         .then(function(r) { return r.json(); });
     }
@@ -155,55 +228,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 setCropStatus('設定の送信に失敗しました', 'error');
             });
     });
-
-    // Called when a radio button is clicked.
-    function handleModeChange(e) {
-        var newDevice = e.target.value;
-
-        // Disable both radios while the switch is in progress.
-        setRadiosEnabled(false);
-        setModeStatus('切り替え中...', 'switching');
-
-        fetch('/set_mode', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ device: newDevice })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.error) {
-                // Revert the radio to the opposite selection on failure.
-                if (newDevice === 'cuda') {
-                    modeCpu.checked = true;
-                } else {
-                    modeGpu.checked = true;
-                }
-                setModeStatus(data.message || data.error, 'error');
-            } else {
-                setModeStatus(data.message || '', 'ok');
-                // Clear the status message after 3 seconds.
-                setTimeout(function() { setModeStatus(''); }, 3000);
-            }
-        })
-        .catch(function() {
-            // Network error — revert radio and show error.
-            if (newDevice === 'cuda') {
-                modeCpu.checked = true;
-            } else {
-                modeGpu.checked = true;
-            }
-            setModeStatus('切り替えに失敗しました', 'error');
-        })
-        .finally(function() {
-            setRadiosEnabled(true);
-        });
-    }
-
-    modeGpu.addEventListener('change', handleModeChange);
-    modeCpu.addEventListener('change', handleModeChange);
-
-    // Initialize UI from server state.
-    fetchStatus();
 
     // ============================================================
     // File handling
